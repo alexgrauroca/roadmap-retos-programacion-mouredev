@@ -15,9 +15,11 @@ type Queue[T any] interface {
 	IsFull() bool
 }
 
+// queue is a circular queue, with a better memory usage
 type queue[T any] struct {
 	items    []T
 	capacity int
+	size     int
 	head     int
 	tail     int
 }
@@ -34,27 +36,46 @@ func (q *queue[T]) Enqueue(item T) bool {
 		return false
 	}
 
+	// Insert the item to the tail of the queue
 	q.items[q.tail] = item
+	// Increasing the queue size by 1
+	q.size++
+	// Circular queue, if tail was the latest item of the slice, the next value will be 0
+	q.tail = (q.tail + 1) % q.capacity
 	return true
 }
 
 func (q *queue[T]) Dequeue() (T, bool) {
-	//TODO implement me
-	panic("implement me")
+	if q.IsEmpty() {
+		var zero T
+		return zero, false
+	}
+
+	// Get the item at the head of the queue
+	item := q.items[q.head]
+	// Reduce the queue size by 1
+	q.size--
+	// Circular queue, if head was the latest item of the slice, the next value will be 0
+	q.head = (q.head + 1) % q.capacity
+	return item, true
 }
 
 func (q *queue[T]) Peek() (T, bool) {
-	//TODO implement me
-	panic("implement me")
+	if q.IsEmpty() {
+		var zero T
+		return zero, false
+	}
+
+	// Get the item at the head of the queue
+	return q.items[q.head], true
 }
 
 func (q *queue[T]) Size() int {
-	return len(q.items)
+	return q.size
 }
 
 func (q *queue[T]) IsEmpty() bool {
-	//TODO implement me
-	panic("implement me")
+	return q.Size() == 0
 }
 
 func (q *queue[T]) IsFull() bool {
